@@ -89,6 +89,22 @@ TFLOPS vs. 64×32 → 2.2 TFLOPS). Hypothesis: memory accesses along rows of B
 and C are contiguous, so a wider tile means longer contiguous (coalesced)
 loads. Not yet confirmed with a profiler — noted as a next step.
 
+## Finding 4 — The tile sweep was confounded by a fixed launch parameter
+
+Experiment 1 ranked all 18 tile shapes at a fixed `num_warps=4`, which mixed tile-shape quality with register-allocator behavior at that one thread count.
+`64×64×64` looked like a loser (0.3 TFLOPS, 476 spills). It isn't. At 128 threads/block its register need pushed ptxas into a heavy-spill tier; at 256 threads/block the same tile fits under the 255-register ceiling and runs 7.6× faster.
+
+| BM×BN×BK | num_warps | n_regs | n_spills | ms | TFLOPS |
+|---|---|---|---|---|---|
+| 64×64×64 | 4 | 168 | 476 | 8.427 | 0.25 |
+| 64×64×64 | 8 | 255 | 48 | 1.087 | 1.98 |
+| 128×128×32 | 4 | 64 | 2718 | 35.050 | 0.06 |
+| 128×128×32 | 8 | 64 | 972 | 23.067 | 0.09 |
+
+**Lesson:** sweeping one launch parameter while fixing another doesn't isolate the swept variable — it samples one point on a joint surface. Tile rankings need re-checking across warp counts before configs are discarded.
+
+The fix has limits: `128×128×32` stayed catastrophic at both warp counts.
+
 New baseline after this experiment: **2.8 TFLOPS** (~19% of cuBLAS, up from
 the initial 8%).
 
