@@ -1,6 +1,6 @@
 ╭─── Claude Code v2.1.222 ─────────────────────────────────────────────────────╮
 │                                                    │ Tips for getting        │
-│                 Welcome back Tulay!                │ started                 │
+│                 Welcome back Berrin!                │ started                 │
 │                                                    │ Run /init to create a … │
 │                      ▗ ▗   ▖ ▖                     │ ─────────────────────── │
 │                                                    │ What's new              │
